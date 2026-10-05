@@ -87,7 +87,48 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    # initialize the fringe to track what we need to visit (potentially)
+    # fringe will hold tuples (state, path) with states represented by 3-tuples (pos, action<N,S,E,W>, cost)
+    fringe = util.Stack()
+
+    # add the starting point to the fringe
+    fringe.push(((problem.getStartState(), None, 0),[]))
+
+    # keep track of the set of visited notes to not enter infinite loops
+    visited = set()
+
+    # while there are new nodes to visit
+    while not fringe.isEmpty():
+        """
+        Grab the node off the top of the fringe and check if it is the goal state.
+        The top of the fringe (most recently added) will always be deeper 
+            than the previously visited node since the lasted nodes added to the fringe
+            were the previous node's children.
+        """
+        currNode = fringe.pop()
+        if (problem.isGoalState(currNode[0][0])):
+            return currNode[1]
+
+        # we only want to keep exploring a node's children if we have never visited the node before
+        if currNode[0][0] not in visited:
+            visited.add(currNode[0][0])
+
+            # getting the successor states of the current state will help expand the graph and our DFS tree
+            neighbors = problem.getSuccessors(currNode[0][0])
+            for node in neighbors:
+                # add all the children (successor states) to the fringe
+                newPath = currNode[1] + [node[1]]
+                fringe.push((node, newPath))
+
+
+    # if there is no valid path return no path
+    return []
+            
+
+
+
+
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
