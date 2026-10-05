@@ -90,14 +90,18 @@ def depthFirstSearch(problem: SearchProblem):
 
     """
     Initialize the fringe to track what we need to visit (potentially).
-    Fringe will hold tuples (state, path) with states represented by 3-tuples (pos, action<N,S,E,W>, cost).
+    Fringe will hold tuples (state, path).
     Use a Stack for DFS becuase we want the most recently explored (deepest) 
         node to be explored further before exploring other nodes.
     """
     fringe = util.Stack()
 
     # add the starting point to the fringe
-    fringe.push(((problem.getStartState(), None, 0),[]))
+    currPos = problem.getStartState()
+    currPath = []
+    currNode = (currPos, currPath)
+
+    fringe.push(currNode)
 
     # keep track of the set of visited notes to not enter infinite loops
     visited = set()
@@ -111,19 +115,23 @@ def depthFirstSearch(problem: SearchProblem):
             were the previous node's children.
         """
         currNode = fringe.pop()
-        if (problem.isGoalState(currNode[0][0])):
-            return currNode[1]
+        currPos = currNode[0]
+        currPath = currNode[1]
+
+        if (problem.isGoalState(currPos)):
+            return currPath
 
         # we only want to keep exploring a node's children if we have never visited the node before
-        if currNode[0][0] not in visited:
-            visited.add(currNode[0][0])
+        if currPos not in visited:
+            visited.add(currPos)
 
             # getting the successor states of the current state will help expand the graph and our DFS tree
-            neighbors = problem.getSuccessors(currNode[0][0])
+            neighbors = problem.getSuccessors(currPos)
             for node in neighbors:
                 # add all the children (successor states) to the fringe
-                newPath = currNode[1] + [node[1]]
-                fringe.push((node, newPath))
+                # a node looks like the 3-tuple (<pos (x,y)>, <action (NSEW)>, <cost>)
+                newPath = currPath + [node[1]]
+                fringe.push((node[0], newPath))
 
 
     # if there is no valid path return no path
@@ -137,14 +145,18 @@ def breadthFirstSearch(problem: SearchProblem):
 
     """
     Initialize the fringe to track what we need to visit (potentially).
-    Fringe will hold tuples (state, path) with states represented by 3-tuples (pos, action<N,S,E,W>, cost).
+    Fringe will hold tuples (state, path).
     Use a Queue for BFS becuase we want the least recently explored (shallowest) 
         node to be explored further before exploring deeper nodes.
     """
     fringe = util.Queue()
 
     # add the starting point to the fringe
-    fringe.push(((problem.getStartState(), None, 0),[]))
+    currPos = problem.getStartState()
+    currPath = []
+    currNode = (currPos, currPath)
+
+    fringe.push(currNode)
 
     # keep track of the set of visited notes to not enter infinite loops
     visited = set()
@@ -158,19 +170,23 @@ def breadthFirstSearch(problem: SearchProblem):
             were the previous node's children.
         """
         currNode = fringe.pop()
-        if (problem.isGoalState(currNode[0][0])):
-            return currNode[1]
+        currPos = currNode[0]
+        currPath = currNode[1]
+
+        if (problem.isGoalState(currPos)):
+            return currPath
 
         # we only want to keep exploring a node's children if we have never visited the node before
-        if currNode[0][0] not in visited:
-            visited.add(currNode[0][0])
+        if currPos not in visited:
+            visited.add(currPos)
 
             # getting the successor states of the current state will help expand the graph and our BFS tree
-            neighbors = problem.getSuccessors(currNode[0][0])
+            neighbors = problem.getSuccessors(currPos)
             for node in neighbors:
                 # add all the children (successor states) to the fringe
-                newPath = currNode[1] + [node[1]]
-                fringe.push((node, newPath))
+                # a node looks like the 3-tuple (<pos (x,y)>, <action (NSEW)>, <cost>)
+                newPath = currPath + [node[1]]
+                fringe.push((node[0], newPath))
 
 
     # if there is no valid path return no path
@@ -183,15 +199,18 @@ def uniformCostSearch(problem: SearchProblem):
 
     """
     Initialize the fringe to track what we need to visit (potentially).
-    Fringe will hold tuples (state, path) with states represented by 3-tuples (pos, action<N,S,E,W>, cost).
+    Fringe will hold tuples (state, path).
     Use a PriorityQueue for UCS becuase we want the lowest priority (least cost) 
         node to be explored further before exploring more expensive nodes.
     """
-    print("Start:", problem.getStartState())
     fringe = util.PriorityQueue()
 
     # add the starting point to the fringe
-    fringe.push(((problem.getStartState(), None, 0),[]), 0)
+    currPos = problem.getStartState()
+    currPath = []
+    currNode = (currPos, currPath)
+
+    fringe.push(currNode, 0)
 
     # keep track of the set of visited notes to not enter infinite loops
     visited = set()
@@ -203,25 +222,30 @@ def uniformCostSearch(problem: SearchProblem):
         The least priority node will always be the least cost choice.
         """
         currNode = fringe.pop()
-        if (problem.isGoalState(currNode[0][0])):
-            return currNode[1]
+        currPos = currNode[0]
+        currPath = currNode[1]
+
+        if (problem.isGoalState(currPos)):
+            return currPath
 
         # we only want to keep exploring a node's children if we have never visited the node before
-        if currNode[0][0] not in visited:
-            visited.add(currNode[0][0])
+        if currPos not in visited:
+            visited.add(currPos)
 
             # getting the successor states of the current state will help expand the graph
-            neighbors = problem.getSuccessors(currNode[0][0])
+            neighbors = problem.getSuccessors(currPos)
             for node in neighbors:
                 # add all the children (successor states) to the fringe
+                # a node looks like the 3-tuple (<pos (x,y)>, <action (NSEW)>, <cost>)
                 # include the total cost of the path so far for PriorityQueue
-                newPath = currNode[1] + [node[1]]
+                newPath = currPath + [node[1]]
                 total_cost = problem.getCostOfActions(newPath)
-                fringe.push((node, newPath), total_cost)
+                fringe.push((node[0], newPath), total_cost)
 
 
     # if there is no valid path return no path
     return []
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -230,10 +254,59 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    """
+    Initialize the fringe to track what we need to visit (potentially).
+    Fringe will hold tuples (state, path).
+    Use a PriorityQueue for A* becuase we want the lowest priority (least cost + heuristic) 
+        node to be explored further before exploring more expensive nodes.
+    """
+    fringe = util.PriorityQueue()
+
+    # add the starting point to the fringe
+    currPos = problem.getStartState()
+    currPath = []
+    currNode = (currPos, currPath)
+
+    fringe.push(currNode, (0 + heuristic(currPos, problem)))
+
+    # keep track of the set of visited notes to not enter infinite loops
+    visited = set()
+
+    # while there are new nodes to visit
+    while not fringe.isEmpty():
+        """
+        Grab the least priority node off the fringe and check if it is the goal state.
+        The least priority node will always be the least cost choice.
+        """
+        currNode = fringe.pop()
+        currPos = currNode[0]
+        currPath = currNode[1]
+
+        if (problem.isGoalState(currPos)):
+            return currPath
+
+        # we only want to keep exploring a node's children if we have never visited the node before
+        if currPos not in visited:
+            visited.add(currPos)
+
+            # getting the successor states of the current state will help expand the graph
+            neighbors = problem.getSuccessors(currPos)
+            for node in neighbors:
+                # add all the children (successor states) to the fringe
+                # a node looks like the 3-tuple (<pos (x,y)>, <action (NSEW)>, <cost>)
+                # include the total cost of the path so far + the heuristic value for PriorityQueue
+                newPath = currPath + [node[1]]
+                total_cost = problem.getCostOfActions(newPath) + heuristic(node[0], problem)
+                fringe.push((node[0], newPath), total_cost)
+
+
+    # if there is no valid path return no path
+    return []
 
 
 # Abbreviations
