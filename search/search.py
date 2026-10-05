@@ -86,10 +86,13 @@ def depthFirstSearch(problem: SearchProblem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    
-    # initialize the fringe to track what we need to visit (potentially)
-    # fringe will hold tuples (state, path) with states represented by 3-tuples (pos, action<N,S,E,W>, cost)
+
+    """
+    Initialize the fringe to track what we need to visit (potentially).
+    Fringe will hold tuples (state, path) with states represented by 3-tuples (pos, action<N,S,E,W>, cost).
+    Use a Stack for DFS becuase we want the most recently explored (deepest) 
+        node to be explored further before exploring other nodes.
+    """
     fringe = util.Stack()
 
     # add the starting point to the fringe
@@ -103,7 +106,7 @@ def depthFirstSearch(problem: SearchProblem):
         """
         Grab the node off the top of the fringe and check if it is the goal state.
         The top of the fringe (most recently added) will always be deeper 
-            than the previously visited node since the lasted nodes added to the fringe
+            than the previously visited node since the most recent nodes added to the fringe
             were the previous node's children.
         """
         currNode = fringe.pop()
@@ -124,16 +127,54 @@ def depthFirstSearch(problem: SearchProblem):
 
     # if there is no valid path return no path
     return []
-            
-
-
 
 
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    """
+    Initialize the fringe to track what we need to visit (potentially).
+    Fringe will hold tuples (state, path) with states represented by 3-tuples (pos, action<N,S,E,W>, cost).
+    Use a Queue for BFS becuase we want the least recently explored (shallowest) 
+        node to be explored further before exploring deeper nodes.
+    """
+    fringe = util.Queue()
+
+    # add the starting point to the fringe
+    fringe.push(((problem.getStartState(), None, 0),[]))
+
+    # keep track of the set of visited notes to not enter infinite loops
+    visited = set()
+
+    # while there are new nodes to visit
+    while not fringe.isEmpty():
+        """
+        Grab the node off the bottom of the fringe and check if it is the goal state.
+        The bottom of the fringe (least recently added) will always be shallower 
+            than the previously visited node since the most recent nodes added to the fringe
+            were the previous node's children.
+        """
+        currNode = fringe.pop()
+        if (problem.isGoalState(currNode[0][0])):
+            return currNode[1]
+
+        # we only want to keep exploring a node's children if we have never visited the node before
+        if currNode[0][0] not in visited:
+            visited.add(currNode[0][0])
+
+            # getting the successor states of the current state will help expand the graph and our BFS tree
+            neighbors = problem.getSuccessors(currNode[0][0])
+            for node in neighbors:
+                # add all the children (successor states) to the fringe
+                newPath = currNode[1] + [node[1]]
+                fringe.push((node, newPath))
+
+
+    # if there is no valid path return no path
+    return []
+    
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
