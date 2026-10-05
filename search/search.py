@@ -86,6 +86,7 @@ def depthFirstSearch(problem: SearchProblem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
+    "*** YOUR CODE HERE ***"
 
     """
     Initialize the fringe to track what we need to visit (potentially).
@@ -179,7 +180,48 @@ def breadthFirstSearch(problem: SearchProblem):
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    """
+    Initialize the fringe to track what we need to visit (potentially).
+    Fringe will hold tuples (state, path) with states represented by 3-tuples (pos, action<N,S,E,W>, cost).
+    Use a PriorityQueue for UCS becuase we want the lowest priority (least cost) 
+        node to be explored further before exploring more expensive nodes.
+    """
+    print("Start:", problem.getStartState())
+    fringe = util.PriorityQueue()
+
+    # add the starting point to the fringe
+    fringe.push(((problem.getStartState(), None, 0),[]), 0)
+
+    # keep track of the set of visited notes to not enter infinite loops
+    visited = set()
+
+    # while there are new nodes to visit
+    while not fringe.isEmpty():
+        """
+        Grab the least priority node off the fringe and check if it is the goal state.
+        The least priority node will always be the least cost choice.
+        """
+        currNode = fringe.pop()
+        if (problem.isGoalState(currNode[0][0])):
+            return currNode[1]
+
+        # we only want to keep exploring a node's children if we have never visited the node before
+        if currNode[0][0] not in visited:
+            visited.add(currNode[0][0])
+
+            # getting the successor states of the current state will help expand the graph
+            neighbors = problem.getSuccessors(currNode[0][0])
+            for node in neighbors:
+                # add all the children (successor states) to the fringe
+                # include the total cost of the path so far for PriorityQueue
+                newPath = currNode[1] + [node[1]]
+                total_cost = problem.getCostOfActions(newPath)
+                fringe.push((node, newPath), total_cost)
+
+
+    # if there is no valid path return no path
+    return []
 
 def nullHeuristic(state, problem=None):
     """
