@@ -481,12 +481,16 @@ class ClosestDotSearchAgent(SearchAgent):
         """
         # Here are some useful elements of the startState
         startPosition = gameState.getPacmanPosition()
-        food = gameState.getFood()
+        food = gameState.getFood() # food[x][y] returns bool value of whether there is food at that x,y pos
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        """
+        Just run BFS, but change the goal test to just check if a position is the location of food.
+        """
+        return search.bfs(problem)
+    
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -522,7 +526,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:
     """
