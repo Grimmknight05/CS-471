@@ -296,14 +296,18 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        position = self.startingPosition #get start position
+        visitedCorners = [] # tuple to store corners
+        for corner in self.corners:
+            visitedCorners.append(position == corner) #Check to see if you are at a corner if so add that corner to visted
+        return (position, tuple(visitedCorners)) # update position and corners
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        position, vistedCorners = state #current state
+        return all(vistedCorners) # if all Corners visted return true else return false
 
     def getSuccessors(self, state: Any):
         """
@@ -317,16 +321,24 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+        currentPosition, vistedCorners = state #unpack stored state
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
+                x,y = currentPosition
+                # action is either Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST
+                dx, dy = Actions.directionToVector(action) #gets an x y representation of movement where the values of |x| + |y| = 1 then calculates new position
+                nextx, nexty = int(x + dx), int(y + dy)
+                if not self.walls[nextx][nexty]: #wall check
+                    nextposition = (nextx, nexty)
+                    newVisted = list(vistedCorners)
+                    for i, corner in enumerate(self.corners): # checks and updates corners opjective
+                        if nextposition == corner:
+                            newVisted[i] = True
 
-            "*** YOUR CODE HERE ***"
-
+                    nextState = (nextposition, tuple(newVisted)) # build updated state
+                    successors.append((nextState, action, 1)) #append triple (successor, action, stepCost)
+            
         self._expanded += 1 # DO NOT CHANGE
         return successors
 
