@@ -498,7 +498,33 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    x, y = position
+    # use a list of food positions
+    foodList = foodGrid.asList()
+
+    # if there are no food positions left, then there are no food left, then the hueristics should all be the same
+    if not foodList:
+        return 0
+
+    # find the distance between a positions and the farthest food. Use the true maze distance since walls 
+    # matter a lot to how far you actually go and provides a more acurate heuristic.
+    max_dist = 0
+    for food in foodList:
+        # first cache and check if we have cached the maze distance already. This way we never recompute the maze distance
+        # between two points (otherwise it takes 15 seconds to search)
+        key = (food, position)
+        if key in problem.heuristicInfo:
+            d = problem.heuristicInfo[key]
+        else:
+            d = mazeDistance(food, position, problem.startingGameState)
+            problem.heuristicInfo[key] = d
+
+        # always check to see if we have found a farther distance. We can make this the new current heuristic since
+        # we can guarentee pacman will always have to go at least from where he currently is, to the farthest food.
+        if d > max_dist:
+            max_dist = d
+            
+    return max_dist
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
