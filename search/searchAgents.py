@@ -373,7 +373,38 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    position, visitedCorners = state
+    unvisitedCorners = [ #map each corner and cordinate with visted bool, only store unvisted ones
+        corner
+        for corner, visited in zip(problem.corners, visitedCorners)
+        if not visited
+    ]
+    if not unvisitedCorners:#if all corners are visted
+        return 0
+    tree = {position}# current position as root
+    remaining = set(unvisitedCorners) #a set representing the remaining corners
+    totalDistance = 0 #output
+    # Minimum spanning tree(connects tree of current position and nearest ramaining corner, each itteration)
+    while remaining: # MST is ok here because we have a relativly small grid size more efficent than manhattin
+        closestDistance = None
+        closestCorner = None
+
+        for treePosition in tree: 
+            for corner in remaining:
+                distance = (
+                    abs(treePosition[0] - corner[0])
+                    + abs(treePosition[1] - corner[1])
+                )
+                if closestDistance is None or distance < closestDistance:
+                    closestDistance = distance
+                    closestCorner = corner
+
+        totalDistance += closestDistance
+        tree.add(closestCorner)
+        remaining.remove(closestCorner)
+
+    return totalDistance #totals to an admissable and efficent lower bound
+    #return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
