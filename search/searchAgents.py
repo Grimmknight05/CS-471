@@ -381,14 +381,19 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     ]
     if not unvisitedCorners:#if all corners are visted
         return 0
-
+        
+    x, y = position
+    distances = []
     
-
-    
-    return max(
-        abs(position[0] - corner[0]) + abs(position[1] - corner[1])
-        for corner in unvisitedCorners
-    )
+    # Find the manhattan distance from pacman to each remaining unvisited corner
+    for corner in unvisitedCorners:
+        cx, cy = corner
+        d = abs(x - cx) + abs(y - cy)
+        distances.append(d)
+        
+    # choose the furthest distance, this ensures admissibility since 
+    # the heuristic can only drop y at most each move
+    return max(distances)
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
