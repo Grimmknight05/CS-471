@@ -381,30 +381,19 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     ]
     if not unvisitedCorners:#if all corners are visted
         return 0
-    tree = {position}# current position as root
-    remaining = set(unvisitedCorners) #a set representing the remaining corners
-    totalDistance = 0 #output
-    # Minimum spanning tree(connects tree of current position and nearest ramaining corner, each itteration)
-    while remaining: # MST is ok here because we have a relativly small grid size more efficent than manhattin
-        closestDistance = None
-        closestCorner = None
-
-        for treePosition in tree: 
-            for corner in remaining:
-                distance = (
-                    abs(treePosition[0] - corner[0])
-                    + abs(treePosition[1] - corner[1])
-                )
-                if closestDistance is None or distance < closestDistance:
-                    closestDistance = distance
-                    closestCorner = corner
-
-        totalDistance += closestDistance
-        tree.add(closestCorner)
-        remaining.remove(closestCorner)
-
-    return totalDistance #totals to an admissable and efficent lower bound
-    #return 0 # Default to trivial solution
+        
+    x, y = position
+    distances = []
+    
+    # Find the manhattan distance from pacman to each remaining unvisited corner
+    for corner in unvisitedCorners:
+        cx, cy = corner
+        d = abs(x - cx) + abs(y - cy)
+        distances.append(d)
+        
+    # choose the furthest distance, this ensures admissibility since 
+    # the heuristic can only drop y at most each move
+    return max(distances)
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
