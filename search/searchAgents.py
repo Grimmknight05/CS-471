@@ -392,7 +392,7 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
         distances.append(d)
         
     # choose the furthest distance, this ensures admissibility since 
-    # the heuristic can only drop y at most each move
+    # the heuristic can only drop at most 1 each move
     return max(distances)
 
 class AStarCornersAgent(SearchAgent):
