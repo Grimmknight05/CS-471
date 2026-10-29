@@ -223,7 +223,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         # start the loop on all actions pacman can take, so we can return a next step
         for action in gameState.getLegalActions(a):
             succ = gameState.generateSuccessor(a,action)
-            
+
             # recurse through minimax for each subtree
             score = minimax(succ, d, next_a)
 
@@ -247,7 +247,76 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        n = gameState.getNumAgents()
+
+        # define the recurrsion within the function 
+        # so we can pass our depth and next agent
+        def minimax(g:GameState, d, agent, a, b):
+            # if we hit depth, or win, or lose, stop
+            if d == 0 or g.isLose() or g.isWin(): 
+                return self.evaluationFunction(g)
+
+            # find our next action, mod n since we want to loop through each agent
+            # our depth should only decrease if we restarted at pacman (0)
+            next_agent = (agent+1) % n
+            next_d = (d-1) if next_agent==0 else d
+
+            # the MAX case
+            if agent == 0:
+                # initialize the value to arbitrarily large negative
+                # update value (utility) as we traverse the tree looking for the maximum
+                v = -float('inf')
+                for action in g.getLegalActions(agent):
+                    succ = g.generateSuccessor(agent,action)
+                    v = max(v,minimax(succ, next_d, next_agent, a, b))
+                    if v > b: return v
+                    a = max(a,v)
+                return v
+
+            # the MIN case
+            else:
+                # initialize the value to arbitrarily large positive
+                # update value (utility) as we traverse the tree looking for the minimum
+                v = float('inf')
+                for action in g.getLegalActions(agent):
+                    succ = g.generateSuccessor(agent,action)
+                    v = min(v,minimax(succ, next_d, next_agent, a, b))
+                    if v < a: return v
+                    b = min(b,v)
+                return v
+            
+
+        d = self.depth
+        agent = 0
+        next_agent = (agent+1) % n
+
+        # keep tract of the best move to return
+        best_move = None
+        best_score = -float('inf')
+
+        alpha = -float('inf')
+        beta = float('inf')
+
+        # start the loop on all actions pacman can take, so we can return a next step
+        for action in gameState.getLegalActions(agent):
+            succ = gameState.generateSuccessor(agent,action)
+            
+            # recurse through minimax for each subtree
+            score = minimax(succ, d, next_agent, alpha, beta)
+
+            # max like function
+            # update our best found score as we go
+            if score>best_score:
+                best_score = score
+                best_move = action
+
+            # pruning steps
+            if score > beta:
+                best_move = action
+                break
+            alpha = max(alpha,score)
+
+        return best_move
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
