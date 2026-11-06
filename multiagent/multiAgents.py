@@ -331,7 +331,53 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        n = gameState.getNumAgents()
+
+        # evaluate the current state, then pass the turn to the next agent
+        def expectimax(state: GameState, depth: int, agent: int):
+            # Stop at terminal states or once search depth is reached
+            if depth == 0 or state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
+
+            legal_actions = state.getLegalActions(agent)
+            if not legal_actions:
+                return self.evaluationFunction(state)
+
+            # count one depth level after all agents have moved and Pacman is up again
+            next_agent = (agent + 1) % n
+            next_depth = depth - 1 if next_agent == 0 else depth
+
+            # evaluate the result of each legal action
+            successor_values = [
+                expectimax(
+                    state.generateSuccessor(agent, action),
+                    next_depth,
+                    next_agent,
+                )
+                for action in legal_actions
+            ]
+
+            # pacman maximization/ ghosts are uniformly random
+            if agent == 0:
+                return max(successor_values)
+            return sum(successor_values) / len(successor_values)
+
+        legal_actions = gameState.getLegalActions(0)
+        if not legal_actions:
+            return None
+
+        best_action = None
+        best_value = -float('inf')
+        next_agent = 1 % n
+        # pacman choose max expected value at root
+        for action in legal_actions:
+            successor = gameState.generateSuccessor(0, action)
+            value = expectimax(successor, self.depth, next_agent)
+            if value > best_value:
+                best_value = value
+                best_action = action
+
+        return best_action
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
