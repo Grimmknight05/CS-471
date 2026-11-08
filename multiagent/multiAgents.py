@@ -384,10 +384,36 @@ def betterEvaluationFunction(currentGameState: GameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: 
+    I Calculated weight in this fuction off of two main factors the distance 
+    between nearest food, and ghost the cost for ghost hunting depending 
+    on if pacman can make it before or after the ghost has recovered.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # get info based on current state
+    pos = currentGameState.getPacmanPosition()
+    food_positions = currentGameState.getFood().asList()
+    value = currentGameState.getScore()
+
+    # prefer states closer to the nearest remaining food.
+    if food_positions:
+        nearest_food_distance = min( #find the nearest food
+            manhattanDistance(pos, food)
+            for food in food_positions
+        )
+        value += 1.0 / (nearest_food_distance + 1)# add weight based on distance
+
+    # calulate ghost scared time to see if pacman can make it make it to ghost in time
+    for ghost in currentGameState.getGhostStates():
+        ghost_pos = ghost.getPosition()
+        distance = manhattanDistance(pos, ghost_pos)# distance to ghost
+        if ghost.scaredTimer > distance:
+            value += 4.0 / (distance + 1)#positive weight
+        else:
+            value -= 20.0 / (distance + 1)#negative weight
+
+    return value
+
 
 # Abbreviation
 better = betterEvaluationFunction
