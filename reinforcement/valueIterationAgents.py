@@ -65,6 +65,28 @@ class ValueIterationAgent(ValueEstimationAgent):
           value iteration, V_k+1(...) depends on V_k(...)'s.
         """
         "*** YOUR CODE HERE ***"
+        def iteration():
+            value_updates = util.Counter()
+
+            # list of states in the mdp
+            states = self.mdp.getStates()
+            gamma = self.discount
+
+            for state in states:
+                if self.mdp.isTerminal(state):
+                    continue
+
+                action = self.computeActionFromValues(state)
+                value = self.computeQValueFromValues(state, action)
+                
+                value_updates[state] = value
+
+            self.values = value_updates
+
+        for i in range(self.iterations):
+            iteration()
+
+
 
     def getValue(self, state):
         """
@@ -78,7 +100,17 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        succ_states = self.mdp.getTransitionStatesAndProbs(state, action)
+        gamma = self.discount
+        value = 0
+
+        for succ_state, prob in succ_states:
+            reward = self.mdp.getReward(state, action, succ_state)
+            succ_value = self.values[succ_state]
+
+            value += prob * (reward + gamma * succ_value)
+
+        return value
 
     def computeActionFromValues(self, state):
         """
@@ -90,7 +122,41 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if self.mdp.isTerminal(state):
+            return None
+
+        value_candidates = []
+        action_candidates = []
+
+        # list of actions to tack from the state
+        actions = self.mdp.getPossibleActions(state)
+
+        if actions == []:
+            return None
+
+        for action in actions:
+            # list of (succ_state, prob) pairs representing probability of moving to succ_state from the state
+            value = self.computeQValueFromValues(state, action)
+
+            value_candidates.append(value)
+            action_candidates.append(action)
+
+        num_values = len(value_candidates)
+        num_actions = len(action_candidates)
+
+        if num_values != num_actions:
+            return ValueError
+
+        best_action = None
+        best_value = -float("inf")
+        for i in range(num_values):
+            test_value = value_candidates[i]
+            if test_value > best_value:
+                best_value = test_value
+                best_action = action_candidates[i]
+
+
+        return best_action
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
