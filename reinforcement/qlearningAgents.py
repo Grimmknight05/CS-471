@@ -22,7 +22,6 @@ import gridworld
 
 
 import random,util,math
-import numpy as np
 import copy
 
 class QLearningAgent(ReinforcementAgent):
@@ -120,18 +119,13 @@ class QLearningAgent(ReinforcementAgent):
         """
         # Pick Action
         legalActions = self.getLegalActions(state)
-        action = None
-        "*** YOUR CODE HERE ***"
-        if legalActions == []:
-            return action
+        if not legalActions:
+            return None
 
-        rand_n = np.random.rand()
-        if rand_n <= self.epsilon:
-            action = np.random.choice(legalActions)
-        else:
-            action = self.computeActionFromQValues(state)        
+        if util.flipCoin(self.epsilon):
+            return random.choice(legalActions)
 
-        return action
+        return self.computeActionFromQValues(state)
 
     def update(self, state, action, nextState, reward: float):
         """
