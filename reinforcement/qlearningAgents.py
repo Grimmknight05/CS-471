@@ -122,7 +122,7 @@ class QLearningAgent(ReinforcementAgent):
         if not legalActions:
             return None
 
-        if util.flipCoin(self.epsilon):
+        if util.flipCoin(self.epsilon): #Added randomness for Epsolon learning
             return random.choice(legalActions)
 
         return self.computeActionFromQValues(state)
